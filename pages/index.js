@@ -55,7 +55,7 @@ function InsightCard({ type, title, desc, action }) {
 
 export default function Dashboard() {
   const { t } = useTranslation();
-  const { restaurant, reviews, isLoaded } = useAppContext();
+  const { restaurant, reviews, isLoaded, demoMode } = useAppContext();
   const router = useRouter();
 
   useEffect(() => {
@@ -70,6 +70,10 @@ export default function Dashboard() {
 
   const avg = reviews.length ? (reviews.reduce((a, r) => a + r.rating, 0) / reviews.length).toFixed(1) : '0.0';
   const pendingCount = reviews.filter(r => r.status === 'pending' || r.status === 'needs_review').length;
+  
+  const respondedCount = reviews.filter(r => r.response || r.status.includes('published')).length;
+  const responseRate = reviews.length ? Math.round((respondedCount / reviews.length) * 100) : 0;
+  
   const feed = reviews.slice(0, 5);
 
   return (
@@ -98,31 +102,38 @@ export default function Dashboard() {
         {/* Stats grid */}
         <div className="grid-4" style={{ marginBottom: 32 }}>
           <StatCard value={reviews.length} label={t('monitored_reviews')} color="var(--gold)" icon="📡" sub={t('all_platforms')} />
-          <StatCard value={avg} label={t('avg_rating')} color="#FBBC04" icon="📊" sub={t('stable_7_days')} />
-          <StatCard value="92%" label={t('response_rate')} color="var(--green)" icon="⚡" sub={`+12% ${t('with_autopilot')}`} />
-          <StatCard value="2" label={t('security_alert')} color="var(--red)" icon="🛡️" sub={t('sensitive_words')} />
+          <StatCard value={avg} label={t('avg_rating')} color="#FBBC04" icon="📊" sub={reviews.length ? t('stable_7_days') : '-'} />
+          <StatCard value={`${responseRate}%`} label={t('response_rate')} color="var(--green)" icon="⚡" sub={reviews.length ? `+12% ${t('with_autopilot')}` : '-'} />
+          <StatCard value={demoMode ? "2" : "0"} label={t('security_alert')} color="var(--red)" icon="🛡️" sub={t('sensitive_words')} />
         </div>
 
         {/* Quant Engine Insights */}
-        <div style={{ marginBottom: 40 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{color: 'var(--gold)'}}>✦</span> {t('actionable_insights')}
-          </h2>
-          <div className="grid-2">
-            <InsightCard 
-              type="alert"
-              title="Alerte : Temps d'attente"
-              desc="Le mot-clé 'attente' est apparu dans 40% des avis négatifs cette semaine. L'IA a temporisé les réponses clients, mais une action managériale est recommandée."
-              action="Analyser le service du soir"
-            />
-            <InsightCard 
-              type="trend"
-              title="Tendance Positive : Menu Dégustation"
-              desc="Hausse de 15% des mentions ultra-positives concernant le Menu Dégustation. L'IA a configuré ce mot-clé en 'boost SEO' dans ses réponses."
-              action="Capitaliser sur Instagram"
-            />
+        {demoMode ? (
+          <div style={{ marginBottom: 40 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{color: 'var(--gold)'}}>✦</span> {t('actionable_insights')}
+            </h2>
+            <div className="grid-2">
+              <InsightCard 
+                type="alert"
+                title="Alerte : Temps d'attente"
+                desc="Le mot-clé 'attente' est apparu dans 40% des avis négatifs cette semaine. L'IA a temporisé les réponses clients, mais une action managériale est recommandée."
+                action="Analyser le service du soir"
+              />
+              <InsightCard 
+                type="trend"
+                title="Tendance Positive : Menu Dégustation"
+                desc="Hausse de 15% des mentions ultra-positives concernant le Menu Dégustation. L'IA a configuré ce mot-clé en 'boost SEO' dans ses réponses."
+                action="Capitaliser sur Instagram"
+              />
+            </div>
           </div>
-        </div>
+        ) : (
+          <div style={{ marginBottom: 40, background: 'var(--surface2)', border: '1px dashed var(--border)', borderRadius: 12, padding: 30, textAlign: 'center' }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}><span style={{color: 'var(--gold)'}}>✦</span> {t('actionable_insights')}</h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>L'Intelligence Artificielle analyse vos données en temps réel. Les insights apparaîtront ici dès qu'une tendance sera détectée.</p>
+          </div>
+        )}
 
         {/* Live Feed */}
         <div className="flex-between" style={{ marginBottom: 20 }}>
@@ -131,11 +142,17 @@ export default function Dashboard() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          {feed.map((r, i) => (
+          {feed.length > 0 ? feed.map((r, i) => (
             <div key={r.id} className="fade-up" style={{ animationDelay: `${i * 70}ms` }}>
               <ReviewCard review={r} />
             </div>
-          ))}
+          )) : (
+            <div style={{ textAlign: 'center', padding: '40px 20px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, color: 'var(--text-muted)' }}>
+              <div style={{ fontSize: 32, marginBottom: 12 }}>📡</div>
+              <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)' }}>En attente de nouveaux avis</div>
+              <div style={{ fontSize: 13, marginTop: 4 }}>Les avis apparaîtront ici dès qu'ils seront publiés sur Google Maps.</div>
+            </div>
+          )}
         </div>
       </Layout>
     </>

@@ -59,7 +59,7 @@ export default function Parametres() {
   const [saved, setSaved] = useState(false);
   const { t } = useTranslation();
   
-  const { restaurant, isLoaded } = useAppContext();
+  const { restaurant, isLoaded, demoMode, setDemoMode } = useAppContext();
   const router = useRouter();
 
   // Chargement des données sauvegardées
@@ -145,6 +145,12 @@ export default function Parametres() {
                 style={inputStyle} 
               />
             </Field>
+          </div>
+          <div style={{ marginTop: 24, padding: 20, background: demoMode ? '#d4af3715' : 'var(--surface2)', border: `1px solid ${demoMode ? 'var(--gold)' : 'var(--border)'}`, borderRadius: 10 }}>
+            <Toggle value={demoMode} onChange={setDemoMode} 
+              label="🌟 Mode Démonstration (Remplissage auto)" 
+              sub="Génère de faux avis et de fausses statistiques pour vous permettre de tester ou de faire une démo de l'application sans connecter de vrai compte Google." 
+            />
           </div>
         </Section>
 

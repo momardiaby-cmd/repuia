@@ -37,7 +37,7 @@ function DonutSeg({ pct, color, offset, size = 120 }) {
 export default function Analytiques() {
   const [tab, setTab] = useState('overview');
   const { t } = useTranslation();
-  const { restaurant, reviews, isLoaded } = useAppContext();
+  const { restaurant, reviews, isLoaded, demoMode } = useAppContext();
   const router = useRouter();
 
   useEffect(() => {
@@ -51,9 +51,10 @@ export default function Analytiques() {
   }
 
   const avg = reviews.length ? (reviews.reduce((a, r) => a + r.rating, 0) / reviews.length).toFixed(1) : '0.0';
-  const respondedPct = 85;
+  const respondedCount = reviews.filter(r => r.response || r.status.includes('published')).length;
+  const respondedPct = reviews.length ? Math.round((respondedCount / reviews.length) * 100) : 0;
 
-  const monthlyData = MONTHS.slice(0, 5).map((m, i) => ({ label: m, value: [2, 1, 3, 0, 5, 1, 2][i] || 0 }));
+  const monthlyData = MONTHS.slice(0, 5).map((m, i) => ({ label: m, value: demoMode ? [2, 1, 3, 0, 5, 1, 2][i] || 0 : 0 }));
   const maxMonthly = Math.max(...monthlyData.map(d => d.value));
 
   const sentimentData = [
@@ -68,16 +69,16 @@ export default function Analytiques() {
   const kpis = [
     { label: t('avg_rating'), value: avg, unit: '/ 5', color: '#FBBC04' },
     { label: t('response_rate'), value: `${respondedPct}%`, unit: '', color: 'var(--green)' },
-    { label: 'Score SEO Local', value: '94', unit: '/ 100', color: 'var(--gold)' },
-    { label: 'Position Marché', value: '#3', unit: 'dans votre quartier', color: '#a78bfa' },
+    { label: 'Score SEO Local', value: demoMode ? '94' : '-', unit: '/ 100', color: 'var(--gold)' },
+    { label: 'Position Marché', value: demoMode ? '#3' : '-', unit: demoMode ? 'dans votre quartier' : '', color: '#a78bfa' },
   ];
 
-  const competitors = [
+  const competitors = demoMode ? [
     { name: `${restaurant.name} (Vous)`, rating: parseFloat(avg), reviews: reviews.length + 120, responseRate: 85, color: 'var(--gold)' },
     { name: "L'Atelier Parisien", rating: 4.5, reviews: 310, responseRate: 98, color: '#3b82f6' },
     { name: "Bistrot des Amis", rating: 3.9, reviews: 89, responseRate: 40, color: 'var(--text-dim)' },
     { name: "La Table de Chef", rating: 4.1, reviews: 405, responseRate: 15, color: 'var(--text-dim)' },
-  ];
+  ] : [];
 
   return (
     <>
