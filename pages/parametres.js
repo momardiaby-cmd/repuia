@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import Layout from '../components/Layout';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from '../lib/i18n';
 
 function Section({ title, children }) {
@@ -47,13 +47,58 @@ export default function Parametres() {
   const [riskHealth, setRiskHealth] = useState(true);
   const [risk1Star, setRisk1Star] = useState(true);
   const [reportFreq, setReportFreq] = useState('hebdomadaire');
-  const [slack, setSlack] = useState(true);
+  
+  // Nouveaux états pour les APIs et Webhooks
+  const [openAIApiKey, setOpenAIApiKey] = useState('');
+  const [googleApiKey, setGoogleApiKey] = useState('');
+  const [slackWebhook, setSlackWebhook] = useState('');
+  const [zapierWebhook, setZapierWebhook] = useState('');
+  
   const [saved, setSaved] = useState(false);
   const { t } = useTranslation();
 
+  // Chargement des données sauvegardées
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setOpenAIApiKey(localStorage.getItem('repuia_openai_key') || '');
+      setGoogleApiKey(localStorage.getItem('repuia_google_key') || '');
+      setSlackWebhook(localStorage.getItem('repuia_slack_webhook') || '');
+      setZapierWebhook(localStorage.getItem('repuia_zapier_webhook') || '');
+      
+      const storedAutoPilot = localStorage.getItem('repuia_autopilot');
+      if (storedAutoPilot !== null) setAutoPilot(storedAutoPilot === 'true');
+    }
+  }, []);
+
   const handleSave = () => {
+    localStorage.setItem('repuia_openai_key', openAIApiKey);
+    localStorage.setItem('repuia_google_key', googleApiKey);
+    localStorage.setItem('repuia_autopilot', autoPilot);
+    
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
+  };
+
+  const handleWebhookConnect = (platform, currentVal, setter, storageKey) => {
+    if (currentVal) {
+      const confirmDisconnect = window.confirm(`Voulez-vous déconnecter ${platform} ? L'URL du webhook sera effacée.`);
+      if (confirmDisconnect) {
+        setter('');
+        localStorage.removeItem(storageKey);
+      }
+    } else {
+      const url = window.prompt(`Entrez l'URL du Webhook ${platform} :`);
+      if (url && url.trim() !== '') {
+        setter(url.trim());
+        localStorage.setItem(storageKey, url.trim());
+      }
+    }
+  };
+
+  const inputStyle = {
+    width: '100%', background: 'var(--surface2)', color: 'var(--text)',
+    border: '1px solid var(--border)', borderRadius: 8, padding: '10px 14px',
+    fontSize: 14, outline: 'none', fontFamily: 'monospace'
   };
 
   return (
@@ -75,6 +120,33 @@ export default function Parametres() {
             {saved ? `✓ ${t('saved')}` : `💾 ${t('save')}`}
           </button>
         </div>
+
+        {/* CLES API */}
+        <Section title="🔑 Connexions API & Plateformes">
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 20 }}>
+            Configurez vos clés d'accès pour permettre à RepuIA de se synchroniser avec vos comptes et générer des réponses intelligentes. Ces clés sont stockées localement de manière sécurisée.
+          </p>
+          <div className="grid-2">
+            <Field label="Clé API OpenAI (ChatGPT)" hint="Nécessaire pour le moteur Quant Engine et la génération de réponses.">
+              <input 
+                type="password" 
+                value={openAIApiKey} 
+                onChange={e => setOpenAIApiKey(e.target.value)} 
+                placeholder="sk-..." 
+                style={inputStyle} 
+              />
+            </Field>
+            <Field label="Clé API Google Business Profile" hint="Nécessaire pour lire et publier automatiquement sur Google Maps.">
+              <input 
+                type="password" 
+                value={googleApiKey} 
+                onChange={e => setGoogleApiKey(e.target.value)} 
+                placeholder="AIzaSy..." 
+                style={inputStyle} 
+              />
+            </Field>
+          </div>
+        </Section>
 
         {/* AUTO PILOT */}
         <Section title={`🤖 ${t('auto_pilot')}`}>
@@ -123,23 +195,49 @@ export default function Parametres() {
             <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>
               Connectez RepuIA à vos outils internes pour être notifié instantanément en cas d'alerte sécurité.
             </p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px', background: 'var(--surface2)', borderRadius: 10, border: '1px solid var(--border)' }}>
-              <img src="https://cdn-icons-png.flaticon.com/512/3800/3800024.png" alt="Slack" width="28" height="28" />
+            
+            {/* SLACK */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px', background: slackWebhook ? '#22c55e10' : 'var(--surface2)', borderRadius: 10, border: `1px solid ${slackWebhook ? '#22c55e40' : 'var(--border)'}` }}>
+              <img src="https://cdn-icons-png.flaticon.com/512/3800/3800024.png" alt="Slack" width="28" height="28" style={{ filter: slackWebhook ? 'none' : 'grayscale(1)' }} />
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 600 }}>Slack</div>
-                <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>#alertes-repuia</div>
+                <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>
+                  {slackWebhook ? '#alertes-repuia' : 'Recevez les alertes sur Slack'}
+                </div>
               </div>
-              <button onClick={() => setSlack(!slack)} style={{ background: slack ? 'var(--green)' : 'transparent', color: slack ? '#fff' : 'var(--text)', border: `1px solid ${slack ? 'var(--green)' : 'var(--border)'}`, borderRadius: 6, padding: '6px 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
-                {slack ? 'Connecté' : 'Connecter'}
+              <button 
+                onClick={() => handleWebhookConnect('Slack', slackWebhook, setSlackWebhook, 'repuia_slack_webhook')} 
+                style={{ 
+                  background: slackWebhook ? 'transparent' : 'var(--surface3)', 
+                  color: slackWebhook ? 'var(--red)' : 'var(--text)', 
+                  border: `1px solid ${slackWebhook ? 'var(--red)' : 'var(--border)'}`, 
+                  borderRadius: 6, padding: '6px 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer' 
+                }}
+              >
+                {slackWebhook ? 'Déconnecter' : 'Connecter'}
               </button>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px', background: 'var(--surface2)', borderRadius: 10, border: '1px solid var(--border)', marginTop: 10 }}>
-              <img src="https://cdn-icons-png.flaticon.com/512/2504/2504930.png" alt="Zapier" width="28" height="28" style={{ filter: 'grayscale(1)' }} />
+
+            {/* ZAPIER */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px', background: zapierWebhook ? '#22c55e10' : 'var(--surface2)', borderRadius: 10, border: `1px solid ${zapierWebhook ? '#22c55e40' : 'var(--border)'}`, marginTop: 10 }}>
+              <img src="https://cdn-icons-png.flaticon.com/512/2504/2504930.png" alt="Zapier" width="28" height="28" style={{ filter: zapierWebhook ? 'none' : 'grayscale(1)' }} />
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 600 }}>Zapier</div>
-                <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>Automatisez vos workflows</div>
+                <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>
+                  {zapierWebhook ? 'Connecté via Webhook' : 'Automatisez vos workflows'}
+                </div>
               </div>
-              <button style={{ background: 'transparent', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: 6, padding: '6px 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>Connecter</button>
+              <button 
+                onClick={() => handleWebhookConnect('Zapier', zapierWebhook, setZapierWebhook, 'repuia_zapier_webhook')} 
+                style={{ 
+                  background: zapierWebhook ? 'transparent' : 'var(--surface3)', 
+                  color: zapierWebhook ? 'var(--red)' : 'var(--text)', 
+                  border: `1px solid ${zapierWebhook ? 'var(--red)' : 'var(--border)'}`, 
+                  borderRadius: 6, padding: '6px 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer' 
+                }}
+              >
+                {zapierWebhook ? 'Déconnecter' : 'Connecter'}
+              </button>
             </div>
           </Section>
         </div>
