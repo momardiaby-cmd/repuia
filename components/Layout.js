@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { useState } from 'react';
 
 const NAV = [
   { href: '/', icon: '◈', label: 'Dashboard' },
@@ -10,37 +11,39 @@ const NAV = [
 
 export default function Layout({ children }) {
   const router = useRouter();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)' }}>
+    <div className="layout-wrapper">
       {/* Sidebar */}
-      <aside style={{
-        position: 'fixed', left: 0, top: 0, bottom: 0, width: 230,
-        background: 'var(--surface)', borderRight: '1px solid var(--border)',
-        display: 'flex', flexDirection: 'column', zIndex: 50,
-      }}>
-        {/* Logo */}
-        <div style={{ padding: '28px 24px 24px', borderBottom: '1px solid var(--border)' }}>
-          <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-.5px', lineHeight: 1 }}>
-            <span style={{ color: 'var(--gold)' }}>Repu</span>
-            <span style={{ color: 'var(--text)' }}>IA</span>
+      <aside className="sidebar">
+        {/* Logo & Mobile Toggle */}
+        <div className="sidebar-logo-container" style={{ padding: '28px 24px 24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-.5px', lineHeight: 1 }}>
+              <span style={{ color: 'var(--gold)' }}>Repu</span>
+              <span style={{ color: 'var(--text)' }}>IA</span>
+            </div>
+            <div style={{
+              marginTop: 6, display: 'inline-flex', alignItems: 'center', gap: 5,
+              background: '#d4af3715', border: '1px solid #d4af3730',
+              borderRadius: 20, padding: '2px 10px',
+            }}>
+              <span style={{ width: 6, height: 6, background: 'var(--gold)', borderRadius: '50%', display: 'inline-block', animation: 'pulse 2s infinite' }} />
+              <span style={{ fontSize: 10, color: 'var(--gold)', fontWeight: 600, letterSpacing: '.5px' }}>PRO PLAN</span>
+            </div>
           </div>
-          <div style={{
-            marginTop: 6, display: 'inline-flex', alignItems: 'center', gap: 5,
-            background: '#d4af3715', border: '1px solid #d4af3730',
-            borderRadius: 20, padding: '2px 10px',
-          }}>
-            <span style={{ width: 6, height: 6, background: 'var(--gold)', borderRadius: '50%', display: 'inline-block', animation: 'pulse 2s infinite' }} />
-            <span style={{ fontSize: 10, color: 'var(--gold)', fontWeight: 600, letterSpacing: '.5px' }}>PRO PLAN</span>
-          </div>
+          <button className="mobile-nav-toggle" onClick={() => setMobileOpen(!mobileOpen)}>
+            {mobileOpen ? '✕' : '☰'}
+          </button>
         </div>
 
         {/* Nav */}
-        <nav style={{ padding: '16px 12px', flex: 1, overflowY: 'auto' }}>
+        <nav className={`sidebar-nav ${mobileOpen ? 'open' : ''}`} style={{ padding: '16px 12px', flex: 1, overflowY: 'auto' }}>
           {NAV.map(item => {
             const active = router.pathname === item.href;
             return (
-              <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
+              <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }} onClick={() => setMobileOpen(false)}>
                 <div style={{
                   display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px',
                   borderRadius: 10, marginBottom: 3, cursor: 'pointer',
@@ -62,7 +65,7 @@ export default function Layout({ children }) {
         </nav>
 
         {/* Restaurant info */}
-        <div style={{ padding: '16px 20px', borderTop: '1px solid var(--border)' }}>
+        <div className="sidebar-restaurant-info" style={{ padding: '16px 20px', borderTop: '1px solid var(--border)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{
               width: 36, height: 36, borderRadius: 10,
@@ -77,24 +80,15 @@ export default function Layout({ children }) {
           </div>
           <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 5 }}>
             <span style={{ width: 6, height: 6, background: 'var(--green)', borderRadius: '50%', display: 'inline-block' }} />
-            <span style={{ fontSize: 11, color: 'var(--green)' }}>Connecté · Google My Business</span>
+            <span style={{ fontSize: 11, color: 'var(--green)' }}>Connecté · GMB</span>
           </div>
         </div>
       </aside>
 
       {/* Main content */}
-      <main style={{ marginLeft: 230, flex: 1, padding: '40px 48px', maxWidth: 'calc(100vw - 230px)' }}>
+      <main className="main-content">
         {children}
       </main>
-
-      <style>{`
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-        @keyframes spin { to{transform:rotate(360deg)} }
-        @keyframes blink { 50%{opacity:0} }
-        @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes shimmer { 0%,100%{opacity:.5} 50%{opacity:1} }
-        a { color: inherit; }
-      `}</style>
     </div>
   );
 }

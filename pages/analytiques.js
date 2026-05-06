@@ -68,7 +68,7 @@ export default function Analytiques() {
     <>
       <Head><title>Analytiques & Benchmark — RepuIA</title></Head>
       <Layout>
-        <div style={{ marginBottom: 36, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div className="flex-between" style={{ marginBottom: 36, alignItems: 'flex-end' }}>
           <div>
             <div style={{ fontSize: 11, color: 'var(--gold)', fontWeight: 700, letterSpacing: '1.5px', marginBottom: 8 }}>INTELLIGENCE ARTIFICIELLE</div>
             <h1 style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-.5px' }}>Analytiques & Benchmark</h1>
@@ -86,7 +86,7 @@ export default function Analytiques() {
         {tab === 'overview' ? (
           <>
             {/* KPIs */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 32 }}>
+            <div className="grid-4" style={{ marginBottom: 32 }}>
               {kpis.map((k, i) => (
                 <div key={i} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, padding: '20px 22px' }}>
                   <div style={{ fontSize: 11, color: 'var(--text-dim)', fontWeight: 600, letterSpacing: '.5px', marginBottom: 8 }}>{k.label.toUpperCase()}</div>
@@ -98,7 +98,7 @@ export default function Analytiques() {
               ))}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
+            <div className="grid-2" style={{ marginBottom: 20 }}>
               {/* Bar chart */}
               <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, padding: 24 }}>
                 <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Avis par mois</h3>
@@ -110,7 +110,7 @@ export default function Analytiques() {
               <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, padding: 24 }}>
                 <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Analyse Sémantique (NLP)</h3>
                 <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 16 }}>Répartition positive/neutre/négative par l'IA</p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>
                   <svg width="130" height="130" viewBox="0 0 120 120" style={{ flexShrink: 0 }}>
                     <circle cx="60" cy="60" r="45" fill="none" stroke="var(--surface2)" strokeWidth="14" />
                     {sentimentData.map((s, i) => <DonutSeg key={i} pct={pcts[i]} color={s.color} offset={offsets[i]} />)}
@@ -137,8 +137,8 @@ export default function Analytiques() {
                 <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>Positionnement local (Paris 11e)</h3>
                 <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>L'IA surveille quotidiennement vos concurrents directs sur Google Maps pour comparer votre attractivité.</p>
               </div>
-              <div style={{ padding: 0 }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+              <div style={{ padding: 0, overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px' }}>
                   <thead>
                     <tr style={{ background: 'var(--surface2)', borderBottom: '1px solid var(--border)' }}>
                       <th style={{ padding: '16px 28px', fontSize: 12, fontWeight: 600, color: 'var(--text-dim)', textTransform: 'uppercase' }}>Établissement</th>

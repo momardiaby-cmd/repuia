@@ -69,7 +69,7 @@ export default function Dashboard() {
         <style>{`.fade-up { animation: fadeUp .4s ease both; }`}</style>
 
         {/* Header */}
-        <div style={{ marginBottom: 36, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div className="flex-between" style={{ marginBottom: 36 }}>
           <div>
             <div style={{ fontSize: 11, color: 'var(--gold)', fontWeight: 700, letterSpacing: '1.5px', marginBottom: 8 }}>REPUIA QUANT ENGINE</div>
             <h1 style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-.5px' }}>Bonjour 👋</h1>
@@ -84,7 +84,7 @@ export default function Dashboard() {
         </div>
 
         {/* Stats grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 32 }}>
+        <div className="grid-4" style={{ marginBottom: 32 }}>
           <StatCard value={REVIEWS.length} label="Avis monitorés" color="var(--gold)" icon="📡" sub="Toutes plateformes" />
           <StatCard value={avg} label="Note moyenne" color="#FBBC04" icon="📊" sub="Stable depuis 7 jours" />
           <StatCard value="92%" label="Taux de réponse" color="var(--green)" icon="⚡" sub="+12% avec Auto-Pilot" />
@@ -96,7 +96,7 @@ export default function Dashboard() {
           <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={{color: 'var(--gold)'}}>✦</span> Insights Actionnables
           </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <div className="grid-2">
             <InsightCard 
               type="alert"
               title="Alerte : Temps d'attente"
@@ -113,7 +113,7 @@ export default function Dashboard() {
         </div>
 
         {/* Live Feed */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+        <div className="flex-between" style={{ marginBottom: 20 }}>
           <h2 style={{ fontSize: 18, fontWeight: 700 }}>Flux d'Avis (Temps Réel)</h2>
           <a href="/avis" style={{ fontSize: 13, color: 'var(--gold)', fontWeight: 600 }}>Voir l'historique →</a>
         </div>

@@ -42,3 +42,125 @@ select option { background: var(--surface2); color: var(--text); }
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes blink { 50% { opacity: 0; } }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+/* Responsive Utilities */
+
+.layout-wrapper {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 230px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+  overflow-y: auto;
+}
+
+.main-content {
+  margin-left: 230px;
+  flex: 1;
+  padding: 40px 48px;
+  max-width: calc(100vw - 230px);
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Mobile Sidebar & Header Adjustments */
+.mobile-nav-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 24px;
+  cursor: pointer;
+}
+
+@media (max-width: 1024px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .main-content { padding: 30px; }
+}
+
+@media (max-width: 768px) {
+  .layout-wrapper { flex-direction: column; }
+  
+  .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+    bottom: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    overflow: visible;
+  }
+  
+  .sidebar-nav {
+    display: none; /* Hidden on mobile by default */
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-direction: column;
+    padding: 10px;
+    z-index: 100;
+  }
+  .sidebar-nav.open { display: flex; }
+  
+  .sidebar-restaurant-info { display: none; }
+  .sidebar-logo-container { padding: 0 !important; border: none !important; }
+
+  .mobile-nav-toggle { display: block; }
+  
+  .main-content {
+    margin-left: 0;
+    max-width: 100%;
+    padding: 20px;
+  }
+
+  .grid-2 { grid-template-columns: 1fr; }
+  
+  .flex-between {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  /* Table responsiveness */
+  table { display: block; overflow-x: auto; white-space: nowrap; }
+}
+
+@media (max-width: 480px) {
+  .grid-4 { grid-template-columns: 1fr; }
+  .review-card-header { flex-direction: column; gap: 10px; }
+  h1 { font-size: 26px !important; }
+}

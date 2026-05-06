@@ -26,7 +26,7 @@ function Toggle({ value, onChange, label, sub }) {
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0', borderBottom: '1px solid var(--border)' }}>
       <div>
         <div style={{ fontSize: 14, color: 'var(--text)', fontWeight: 500 }}>{label}</div>
-        {sub && <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 4 }}>{sub}</div>}
+        {sub && <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 4, paddingRight: 16 }}>{sub}</div>}
       </div>
       <button onClick={() => onChange(!value)} style={{
         width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', flexShrink: 0,
@@ -60,7 +60,7 @@ export default function Parametres() {
         <title>Paramètres — RepuIA</title>
       </Head>
       <Layout>
-        <div style={{ marginBottom: 36, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="flex-between" style={{ marginBottom: 36 }}>
           <div>
             <div style={{ fontSize: 11, color: 'var(--gold)', fontWeight: 700, letterSpacing: '1.5px', marginBottom: 8 }}>CONFIGURATION AVANCÉE</div>
             <h1 style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-.5px' }}>Paramètres & Auto-Pilot</h1>
@@ -96,7 +96,7 @@ export default function Parametres() {
           )}
         </Section>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+        <div className="grid-2">
           {/* RAPPORTS */}
           <Section title="📊 Rapports Automatisés">
             <Field label="Fréquence d'envoi des Insights Quantitatifs" hint="Recevez un résumé analytique directement par email.">

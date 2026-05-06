@@ -90,7 +90,7 @@ export default function ReviewCard({ review, onStatusChange }) {
     }}>
       {renderBadge()}
 
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 14 }}>
+      <div className="review-card-header" style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 14 }}>
         <div style={{
           width: 44, height: 44, borderRadius: 12, flexShrink: 0, background: avatarGrad,
           display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#fff',
