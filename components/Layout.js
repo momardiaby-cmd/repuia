@@ -1,17 +1,29 @@
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useState } from 'react';
-
-const NAV = [
-  { href: '/', icon: '◈', label: 'Dashboard' },
-  { href: '/avis', icon: '⊞', label: 'Tous les avis' },
-  { href: '/analytiques', icon: '◎', label: 'Analytiques' },
-  { href: '/parametres', icon: '⚙', label: 'Paramètres' },
-];
+import { useTranslation } from '../lib/i18n';
 
 export default function Layout({ children }) {
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { t, lang, changeLanguage } = useTranslation();
+
+  const NAV = [
+    { href: '/', icon: '◈', label: t('dashboard') },
+    { href: '/avis', icon: '⊞', label: t('reviews') },
+    { href: '/analytiques', icon: '◎', label: t('analytics') },
+    { href: '/parametres', icon: '⚙', label: t('settings') },
+  ];
+
+  const langs = [
+    { code: 'FR', flag: '🇫🇷' },
+    { code: 'EN', flag: '🇬🇧' },
+    { code: 'ES', flag: '🇪🇸' },
+    { code: 'DE', flag: '🇩🇪' },
+    { code: 'IT', flag: '🇮🇹' },
+    { code: 'AR', flag: '🇦🇪' },
+    { code: 'ZH', flag: '🇨🇳' }
+  ];
 
   return (
     <div className="layout-wrapper">
@@ -63,6 +75,23 @@ export default function Layout({ children }) {
             );
           })}
         </nav>
+
+        {/* Language Switcher */}
+        <div style={{ padding: '0 20px', marginBottom: '16px' }}>
+          <select 
+            value={lang} 
+            onChange={(e) => changeLanguage(e.target.value)}
+            style={{
+              width: '100%', background: 'var(--surface2)', color: 'var(--text)',
+              border: '1px solid var(--border)', borderRadius: 8, padding: '8px 12px',
+              fontSize: 13, outline: 'none', cursor: 'pointer'
+            }}
+          >
+            {langs.map(l => (
+              <option key={l.code} value={l.code}>{l.flag} {l.code}</option>
+            ))}
+          </select>
+        </div>
 
         {/* Restaurant info */}
         <div className="sidebar-restaurant-info" style={{ padding: '16px 20px', borderTop: '1px solid var(--border)' }}>

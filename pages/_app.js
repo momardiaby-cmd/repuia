@@ -1,4 +1,12 @@
 import '../styles/globals.css';
-export default function App({ Component, pageProps }) {
-  return <Component {...pageProps} />;
+import { LanguageProvider } from '../lib/i18n';
+
+function MyApp({ Component, pageProps }) {
+  return (
+    <LanguageProvider>
+      <Component {...pageProps} />
+    </LanguageProvider>
+  );
 }
+
+export default MyApp;

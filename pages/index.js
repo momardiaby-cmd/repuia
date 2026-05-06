@@ -2,6 +2,7 @@ import Head from 'next/head';
 import Layout from '../components/Layout';
 import ReviewCard from '../components/ReviewCard';
 import { REVIEWS } from '../lib/data';
+import { useTranslation } from '../lib/i18n';
 
 function StatCard({ value, label, color, icon, sub }) {
   return (
@@ -51,6 +52,7 @@ function InsightCard({ type, title, desc, action }) {
 }
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const avg = (REVIEWS.reduce((a, r) => a + r.rating, 0) / REVIEWS.length).toFixed(1);
   const positive = REVIEWS.filter(r => r.rating >= 4).length;
   
@@ -72,29 +74,29 @@ export default function Dashboard() {
         <div className="flex-between" style={{ marginBottom: 36 }}>
           <div>
             <div style={{ fontSize: 11, color: 'var(--gold)', fontWeight: 700, letterSpacing: '1.5px', marginBottom: 8 }}>REPUIA QUANT ENGINE</div>
-            <h1 style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-.5px' }}>Bonjour 👋</h1>
-            <p style={{ color: 'var(--text-muted)', marginTop: 6, fontSize: 15 }}>L'IA surveille votre réputation en temps réel.</p>
+            <h1 style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-.5px' }}>{t('hello')}</h1>
+            <p style={{ color: 'var(--text-muted)', marginTop: 6, fontSize: 15 }}>{t('ai_monitor')}</p>
           </div>
           {pendingCount > 0 && (
             <div style={{ background: '#ef444418', border: '1px solid #ef444440', borderRadius: 12, padding: '10px 18px', display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ width: 8, height: 8, background: 'var(--red)', borderRadius: '50%', display: 'inline-block', animation: 'pulse 1.5s infinite' }} />
-              <span style={{ fontSize: 13, color: 'var(--red)', fontWeight: 600 }}>{pendingCount} action(s) requise(s)</span>
+              <span style={{ fontSize: 13, color: 'var(--red)', fontWeight: 600 }}>{pendingCount} {t('actions_required')}</span>
             </div>
           )}
         </div>
 
         {/* Stats grid */}
         <div className="grid-4" style={{ marginBottom: 32 }}>
-          <StatCard value={REVIEWS.length} label="Avis monitorés" color="var(--gold)" icon="📡" sub="Toutes plateformes" />
-          <StatCard value={avg} label="Note moyenne" color="#FBBC04" icon="📊" sub="Stable depuis 7 jours" />
-          <StatCard value="92%" label="Taux de réponse" color="var(--green)" icon="⚡" sub="+12% avec Auto-Pilot" />
-          <StatCard value="2" label="Alerte Sécurité" color="var(--red)" icon="🛡️" sub="Mots clés sensibles détectés" />
+          <StatCard value={REVIEWS.length} label={t('monitored_reviews')} color="var(--gold)" icon="📡" sub={t('all_platforms')} />
+          <StatCard value={avg} label={t('avg_rating')} color="#FBBC04" icon="📊" sub={t('stable_7_days')} />
+          <StatCard value="92%" label={t('response_rate')} color="var(--green)" icon="⚡" sub={`+12% ${t('with_autopilot')}`} />
+          <StatCard value="2" label={t('security_alert')} color="var(--red)" icon="🛡️" sub={t('sensitive_words')} />
         </div>
 
         {/* Quant Engine Insights */}
         <div style={{ marginBottom: 40 }}>
           <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{color: 'var(--gold)'}}>✦</span> Insights Actionnables
+            <span style={{color: 'var(--gold)'}}>✦</span> {t('actionable_insights')}
           </h2>
           <div className="grid-2">
             <InsightCard 
@@ -114,8 +116,8 @@ export default function Dashboard() {
 
         {/* Live Feed */}
         <div className="flex-between" style={{ marginBottom: 20 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700 }}>Flux d'Avis (Temps Réel)</h2>
-          <a href="/avis" style={{ fontSize: 13, color: 'var(--gold)', fontWeight: 600 }}>Voir l'historique →</a>
+          <h2 style={{ fontSize: 18, fontWeight: 700 }}>{t('live_feed')}</h2>
+          <a href="/avis" style={{ fontSize: 13, color: 'var(--gold)', fontWeight: 600 }}>{t('view_history')}</a>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>

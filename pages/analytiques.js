@@ -2,6 +2,7 @@ import Head from 'next/head';
 import Layout from '../components/Layout';
 import { REVIEWS } from '../lib/data';
 import { useState } from 'react';
+import { useTranslation } from '../lib/i18n';
 
 const MONTHS = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
 
@@ -34,6 +35,7 @@ function DonutSeg({ pct, color, offset, size = 120 }) {
 
 export default function Analytiques() {
   const [tab, setTab] = useState('overview');
+  const { t } = useTranslation();
 
   const avg = (REVIEWS.reduce((a, r) => a + r.rating, 0) / REVIEWS.length).toFixed(1);
   const respondedPct = 85;
@@ -51,8 +53,8 @@ export default function Analytiques() {
   const offsets = pcts.reduce((acc, p, i) => { acc.push(i === 0 ? 0 : acc[i - 1] + pcts[i - 1]); return acc; }, []);
 
   const kpis = [
-    { label: 'Note moyenne', value: avg, unit: '/ 5', color: '#FBBC04' },
-    { label: 'Taux de réponse', value: `${respondedPct}%`, unit: '', color: 'var(--green)' },
+    { label: t('avg_rating'), value: avg, unit: '/ 5', color: '#FBBC04' },
+    { label: t('response_rate'), value: `${respondedPct}%`, unit: '', color: 'var(--green)' },
     { label: 'Score SEO Local', value: '94', unit: '/ 100', color: 'var(--gold)' },
     { label: 'Position Marché', value: '#3', unit: 'dans votre quartier', color: '#a78bfa' },
   ];
@@ -66,19 +68,19 @@ export default function Analytiques() {
 
   return (
     <>
-      <Head><title>Analytiques & Benchmark — RepuIA</title></Head>
+      <Head><title>{t('analytics')} — RepuIA</title></Head>
       <Layout>
         <div className="flex-between" style={{ marginBottom: 36, alignItems: 'flex-end' }}>
           <div>
             <div style={{ fontSize: 11, color: 'var(--gold)', fontWeight: 700, letterSpacing: '1.5px', marginBottom: 8 }}>INTELLIGENCE ARTIFICIELLE</div>
-            <h1 style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-.5px' }}>Analytiques & Benchmark</h1>
+            <h1 style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-.5px' }}>{t('analytics')}</h1>
           </div>
           <div style={{ display: 'flex', background: 'var(--surface2)', borderRadius: 8, padding: 4, border: '1px solid var(--border)' }}>
             <button onClick={() => setTab('overview')} style={{ background: tab === 'overview' ? 'var(--surface)' : 'transparent', color: tab === 'overview' ? 'var(--text)' : 'var(--text-muted)', border: 'none', padding: '8px 16px', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all .2s', boxShadow: tab === 'overview' ? '0 1px 3px rgba(0,0,0,.3)' : 'none' }}>
-              Vue d'ensemble
+              {t('overview')}
             </button>
             <button onClick={() => setTab('benchmark')} style={{ background: tab === 'benchmark' ? 'var(--surface)' : 'transparent', color: tab === 'benchmark' ? 'var(--gold)' : 'var(--text-muted)', border: 'none', padding: '8px 16px', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all .2s', boxShadow: tab === 'benchmark' ? '0 1px 3px rgba(0,0,0,.3)' : 'none' }}>
-              ✦ Benchmark Concurrentiel
+              ✦ {t('benchmark')}
             </button>
           </div>
         </div>

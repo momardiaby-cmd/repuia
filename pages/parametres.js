@@ -1,6 +1,7 @@
 import Head from 'next/head';
 import Layout from '../components/Layout';
 import { useState } from 'react';
+import { useTranslation } from '../lib/i18n';
 
 function Section({ title, children }) {
   return (
@@ -48,6 +49,7 @@ export default function Parametres() {
   const [reportFreq, setReportFreq] = useState('hebdomadaire');
   const [slack, setSlack] = useState(true);
   const [saved, setSaved] = useState(false);
+  const { t } = useTranslation();
 
   const handleSave = () => {
     setSaved(true);
@@ -57,25 +59,25 @@ export default function Parametres() {
   return (
     <>
       <Head>
-        <title>Paramètres — RepuIA</title>
+        <title>{t('settings')} — RepuIA</title>
       </Head>
       <Layout>
         <div className="flex-between" style={{ marginBottom: 36 }}>
           <div>
             <div style={{ fontSize: 11, color: 'var(--gold)', fontWeight: 700, letterSpacing: '1.5px', marginBottom: 8 }}>CONFIGURATION AVANCÉE</div>
-            <h1 style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-.5px' }}>Paramètres & Auto-Pilot</h1>
+            <h1 style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-.5px' }}>{t('settings')} & {t('auto_pilot')}</h1>
           </div>
           <button onClick={handleSave} style={{
             background: saved ? '#22c55e' : 'linear-gradient(135deg,var(--gold),var(--gold-dim))',
             border: 'none', color: saved ? '#fff' : '#000', borderRadius: 8, padding: '11px 28px',
             fontSize: 14, fontWeight: 700, cursor: 'pointer', transition: 'all .3s',
           }}>
-            {saved ? '✓ Sauvegardé' : '💾 Enregistrer'}
+            {saved ? `✓ ${t('saved')}` : `💾 ${t('save')}`}
           </button>
         </div>
 
         {/* AUTO PILOT */}
-        <Section title="🤖 Mode Pilote Automatique">
+        <Section title={`🤖 ${t('auto_pilot')}`}>
           <div style={{ background: autoPilot ? '#22c55e10' : 'var(--surface2)', border: `1px solid ${autoPilot ? '#22c55e40' : 'var(--border)'}`, borderRadius: 10, padding: 20, marginBottom: 24 }}>
             <Toggle value={autoPilot} onChange={setAutoPilot} 
               label="Activer la Réponse et Publication 100% Autonome" 

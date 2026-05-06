@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from '../lib/i18n';
 
 function Stars({ rating, size = 15 }) {
   return (
@@ -22,6 +23,7 @@ export default function ReviewCard({ review, onStatusChange }) {
   const [generating, setGenerating] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [expanded, setExpanded] = useState(status === 'auto_published' || status === 'manual_published');
+  const { t } = useTranslation();
 
   const isPositive = review.rating >= 4;
   const ratingColor = review.rating >= 4 ? 'var(--green)' : review.rating === 3 ? '#f59e0b' : 'var(--red)';
@@ -71,9 +73,9 @@ export default function ReviewCard({ review, onStatusChange }) {
   };
 
   const renderBadge = () => {
-    if (status === 'auto_published') return <div style={{...badgeStyle, background: '#22c55e18', border: '1px solid #22c55e40', color: 'var(--green)'}}>✓ PUBLIÉ AUTO</div>;
-    if (status === 'manual_published') return <div style={{...badgeStyle, background: '#22c55e18', border: '1px solid #22c55e40', color: 'var(--green)'}}>✓ PUBLIÉ</div>;
-    if (status === 'needs_review') return <div style={{...badgeStyle, background: '#ef444420', border: '1px solid #ef444450', color: 'var(--red)'}}>⚠️ ACTION REQUISE</div>;
+    if (status === 'auto_published') return <div style={{...badgeStyle, background: '#22c55e18', border: '1px solid #22c55e40', color: 'var(--green)'}}>✓ {t('published_auto')}</div>;
+    if (status === 'manual_published') return <div style={{...badgeStyle, background: '#22c55e18', border: '1px solid #22c55e40', color: 'var(--green)'}}>✓ {t('published')}</div>;
+    if (status === 'needs_review') return <div style={{...badgeStyle, background: '#ef444420', border: '1px solid #ef444450', color: 'var(--red)'}}>⚠️ {t('needs_action')}</div>;
     return null;
   };
 
@@ -129,19 +131,19 @@ export default function ReviewCard({ review, onStatusChange }) {
             borderRadius: 8, padding: '10px 20px', fontSize: 13, fontWeight: 600,
             cursor: generating ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'all .2s',
           }}>
-          {generating ? <><Spinner />&nbsp;Analyse et Génération…</> : <><span>✨</span> Générer une réponse IA</>}
+          {generating ? <><Spinner />&nbsp;{t('generating')}</> : <><span>✨</span> {t('generate_ai')}</>}
         </button>
       )}
 
       {expanded && (
         <div style={{ marginTop: 18, background: 'var(--surface2)', border: '1px solid var(--border)', borderLeft: '3px solid var(--gold)', borderRadius: 10, padding: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-            <span style={{ fontSize: 10, color: 'var(--gold)', fontWeight: 700, letterSpacing: '1px' }}>✨ RÉPONSE {isTreated ? '' : 'PROPOSÉE'} PAR IA</span>
+            <span style={{ fontSize: 10, color: 'var(--gold)', fontWeight: 700, letterSpacing: '1px' }}>✨ {t('ai_response')} {isTreated ? '' : t('ai_proposed')}</span>
           </div>
           
           {generating ? (
              <div style={{ display:'flex', gap:8, alignItems:'center', color:'var(--text-muted)', fontSize:13 }}>
-               <Spinner color="var(--gold)" /> L'agent IA rédige la meilleure réponse...
+               <Spinner color="var(--gold)" /> {t('generating')}
              </div>
           ) : (
              <textarea 
@@ -162,7 +164,7 @@ export default function ReviewCard({ review, onStatusChange }) {
               <button onClick={() => setExpanded(false)} style={{
                 background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-muted)',
                 borderRadius: 8, padding: '9px 16px', fontSize: 13, cursor: 'pointer'
-              }}>Annuler</button>
+              }}>{t('cancel')}</button>
               
               <button onClick={handlePublish} disabled={publishing} style={{
                 background: publishing ? 'var(--surface3)' : 'linear-gradient(135deg, #3b82f6, #2563eb)',
@@ -170,7 +172,7 @@ export default function ReviewCard({ review, onStatusChange }) {
                 borderRadius: 8, padding: '9px 20px', fontSize: 13, fontWeight: 600, cursor: publishing ? 'not-allowed' : 'pointer',
                 display: 'flex', alignItems: 'center', gap: 8
               }}>
-                {publishing ? <><Spinner color="#fff" /> Publication...</> : <>🚀 Approuver et Publier</>}
+                {publishing ? <><Spinner color="#fff" /> {t('publishing')}</> : <>🚀 {t('approve_publish')}</>}
               </button>
             </div>
           )}

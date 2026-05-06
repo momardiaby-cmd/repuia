@@ -2,125 +2,84 @@ import Head from 'next/head';
 import Layout from '../components/Layout';
 import ReviewCard from '../components/ReviewCard';
 import { REVIEWS } from '../lib/data';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
+import { useTranslation } from '../lib/i18n';
 
-const FILTERS = ['Tous', '5 ⭐', '4 ⭐', '3 ⭐', '1-2 ⭐'];
-const SORTS = [
-  { label: 'Plus récents', fn: (a, b) => new Date(b.date) - new Date(a.date) },
-  { label: 'Plus anciens', fn: (a, b) => new Date(a.date) - new Date(b.date) },
-  { label: 'Meilleures notes', fn: (a, b) => b.rating - a.rating },
-  { label: 'Pires notes', fn: (a, b) => a.rating - b.rating },
-];
-
-export default function AvisPage() {
-  const [filter, setFilter] = useState('Tous');
-  const [sortIdx, setSortIdx] = useState(0);
+export default function Avis() {
+  const [filter, setFilter] = useState('all'); // all, pending, treated
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('Tous');
+  const [reviews, setReviews] = useState(REVIEWS);
+  const { t } = useTranslation();
 
-  const filtered = useMemo(() => {
-    let list = [...REVIEWS];
-    if (filter === '5 ⭐') list = list.filter(r => r.rating === 5);
-    else if (filter === '4 ⭐') list = list.filter(r => r.rating === 4);
-    else if (filter === '3 ⭐') list = list.filter(r => r.rating === 3);
-    else if (filter === '1-2 ⭐') list = list.filter(r => r.rating <= 2);
+  const handleStatusChange = (id, newStatus) => {
+    setReviews(prev => prev.map(r => r.id === id ? { ...r, status: newStatus } : r));
+  };
 
-    if (statusFilter === 'En attente') list = list.filter(r => !r.responded);
-    else if (statusFilter === 'Traités') list = list.filter(r => r.responded);
-
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      list = list.filter(r =>
-        r.author.toLowerCase().includes(q) || r.text.toLowerCase().includes(q)
-      );
-    }
-    return list.sort(SORTS[sortIdx].fn);
-  }, [filter, sortIdx, search, statusFilter]);
+  const filteredReviews = reviews.filter(r => {
+    const matchSearch = r.author.toLowerCase().includes(search.toLowerCase()) || r.text.toLowerCase().includes(search.toLowerCase());
+    if (filter === 'pending') return matchSearch && (r.status === 'pending' || r.status === 'needs_review');
+    if (filter === 'treated') return matchSearch && (r.status === 'auto_published' || r.status === 'manual_published');
+    return matchSearch;
+  });
 
   return (
     <>
       <Head>
-        <title>Tous les avis — RepuIA</title>
-        <meta name="description" content="Consultez et gérez tous vos avis Google en un seul endroit." />
+        <title>{t('reviews')} — RepuIA</title>
       </Head>
       <Layout>
-        <div style={{ marginBottom: 32 }}>
-          <div style={{ fontSize: 11, color: 'var(--gold)', fontWeight: 700, letterSpacing: '1.5px', marginBottom: 8 }}>AVIS CLIENTS</div>
-          <h1 style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-.5px' }}>Tous les avis</h1>
-          <p style={{ color: 'var(--text-muted)', marginTop: 6, fontSize: 15 }}>
-            {REVIEWS.length} avis Google · {REVIEWS.filter(r => !r.responded).length} en attente de réponse
-          </p>
+        <div style={{ marginBottom: 36 }}>
+          <h1 style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-.5px' }}>{t('reviews')}</h1>
+          <p style={{ color: 'var(--text-muted)', marginTop: 6, fontSize: 15 }}>Consultez et répondez à tous vos avis depuis une seule interface.</p>
         </div>
 
-        {/* Search bar */}
-        <div style={{ position: 'relative', marginBottom: 20 }}>
-          <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'var(--text-dim)' }}>🔍</span>
-          <input
-            value={search} onChange={e => setSearch(e.target.value)}
-            placeholder="Rechercher par nom ou contenu…"
+        {/* Filters & Search */}
+        <div style={{
+          display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap',
+          background: 'var(--surface)', padding: '16px', borderRadius: 14, border: '1px solid var(--border)'
+        }}>
+          <input 
+            type="text" 
+            placeholder="Rechercher un avis, un client..." 
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             style={{
-              width: '100%', background: 'var(--surface)', border: '1px solid var(--border)',
-              borderRadius: 10, padding: '12px 16px 12px 44px', color: 'var(--text)',
-              fontSize: 14, outline: 'none', transition: 'border-color .2s',
+              flex: 1, minWidth: 200, background: 'var(--surface2)', color: 'var(--text)',
+              border: '1px solid var(--border)', borderRadius: 8, padding: '10px 16px',
+              fontSize: 14, outline: 'none'
             }}
-            onFocus={e => e.target.style.borderColor = 'var(--gold-dim)'}
-            onBlur={e => e.target.style.borderColor = 'var(--border)'}
           />
-        </div>
-
-        {/* Filters row */}
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 16, alignItems: 'center' }}>
-          <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>Note :</span>
-          {FILTERS.map(f => (
-            <button key={f} onClick={() => setFilter(f)} style={{
-              background: filter === f ? 'var(--gold)' : 'var(--surface)',
-              border: `1px solid ${filter === f ? 'var(--gold)' : 'var(--border)'}`,
-              color: filter === f ? '#000' : 'var(--text-muted)',
-              borderRadius: 20, padding: '6px 14px', fontSize: 12,
-              fontWeight: filter === f ? 700 : 400, cursor: 'pointer', transition: 'all .15s',
-            }}>{f}</button>
-          ))}
-          <span style={{ marginLeft: 8, fontSize: 13, color: 'var(--text-muted)' }}>Statut :</span>
-          {['Tous', 'En attente', 'Traités'].map(s => (
-            <button key={s} onClick={() => setStatusFilter(s)} style={{
-              background: statusFilter === s ? '#ffffff10' : 'var(--surface)',
-              border: `1px solid ${statusFilter === s ? 'var(--border-hover)' : 'var(--border)'}`,
-              color: statusFilter === s ? 'var(--text)' : 'var(--text-muted)',
-              borderRadius: 20, padding: '6px 14px', fontSize: 12,
-              fontWeight: statusFilter === s ? 600 : 400, cursor: 'pointer', transition: 'all .15s',
-            }}>{s}</button>
-          ))}
-          <div style={{ marginLeft: 'auto' }}>
-            <select value={sortIdx} onChange={e => setSortIdx(Number(e.target.value))}
-              style={{
-                background: 'var(--surface)', border: '1px solid var(--border)',
-                color: 'var(--text)', borderRadius: 8, padding: '8px 12px', fontSize: 13, cursor: 'pointer',
-              }}>
-              {SORTS.map((s, i) => <option key={i} value={i}>{s.label}</option>)}
-            </select>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={() => setFilter('all')} style={btnStyle(filter === 'all')}>Tous</button>
+            <button onClick={() => setFilter('pending')} style={btnStyle(filter === 'pending')}>À traiter</button>
+            <button onClick={() => setFilter('treated')} style={btnStyle(filter === 'treated')}>Publiés</button>
           </div>
         </div>
 
-        {/* Count */}
-        <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 20 }}>
-          {filtered.length} avis affichés
-        </div>
-
-        {/* Review list */}
+        {/* List */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          {filtered.length === 0
-            ? <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)' }}>
-                <div style={{ fontSize: 40, marginBottom: 12 }}>🔍</div>
-                <p style={{ fontSize: 15 }}>Aucun avis ne correspond à vos critères.</p>
-              </div>
-            : filtered.map((r, i) => (
-              <div key={r.id} style={{ animation: 'fadeUp .35s ease both', animationDelay: `${i * 60}ms` }}>
-                <ReviewCard review={r} />
+          {filteredReviews.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
+              <div style={{ fontSize: 40, marginBottom: 16 }}>🔍</div>
+              <div style={{ fontSize: 16, fontWeight: 600 }}>Aucun avis trouvé</div>
+            </div>
+          ) : (
+            filteredReviews.map((r, i) => (
+              <div key={r.id} style={{ animation: `fadeUp .4s ease ${i * 0.05}s both` }}>
+                <ReviewCard review={r} onStatusChange={handleStatusChange} />
               </div>
             ))
-          }
+          )}
         </div>
       </Layout>
     </>
   );
 }
+
+const btnStyle = (active) => ({
+  background: active ? 'var(--gold)' : 'var(--surface2)',
+  color: active ? '#000' : 'var(--text-muted)',
+  border: active ? '1px solid var(--gold)' : '1px solid var(--border)',
+  borderRadius: 8, padding: '10px 16px', fontSize: 13, fontWeight: 600,
+  cursor: 'pointer', transition: 'all .2s'
+});
