@@ -136,16 +136,7 @@ export default function Parametres() {
             Configurez vos clés d'accès pour permettre à RepuIA de se synchroniser avec vos comptes et générer des réponses intelligentes. Ces clés sont stockées localement de manière sécurisée.
           </p>
           <div className="grid-2">
-            <Field label="Clé API OpenAI (ChatGPT)" hint="Nécessaire pour le moteur Quant Engine et la génération de réponses.">
-              <input 
-                type="password" 
-                value={openAIApiKey} 
-                onChange={e => setOpenAIApiKey(e.target.value)} 
-                placeholder="sk-..." 
-                style={inputStyle} 
-              />
-            </Field>
-            <Field label="Clé API Google Business Profile" hint="Nécessaire pour lire et publier automatiquement sur Google Maps.">
+            <Field label="Clé API Google Business Profile" hint="Nécessaire pour lire et publier automatiquement sur Google Maps (à fournir par le restaurateur).">
               <input 
                 type="password" 
                 value={googleApiKey} 
