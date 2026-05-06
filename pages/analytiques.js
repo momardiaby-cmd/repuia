@@ -1,8 +1,9 @@
 import Head from 'next/head';
 import Layout from '../components/Layout';
-import { REVIEWS } from '../lib/data';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from '../lib/i18n';
+import { useAppContext } from '../lib/AppContext';
+import { useRouter } from 'next/router';
 
 const MONTHS = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
 
@@ -36,20 +37,32 @@ function DonutSeg({ pct, color, offset, size = 120 }) {
 export default function Analytiques() {
   const [tab, setTab] = useState('overview');
   const { t } = useTranslation();
+  const { restaurant, reviews, isLoaded } = useAppContext();
+  const router = useRouter();
 
-  const avg = (REVIEWS.reduce((a, r) => a + r.rating, 0) / REVIEWS.length).toFixed(1);
+  useEffect(() => {
+    if (isLoaded && !restaurant) {
+      router.push('/onboarding');
+    }
+  }, [isLoaded, restaurant, router]);
+
+  if (!isLoaded || !restaurant) {
+    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Chargement...</div>;
+  }
+
+  const avg = reviews.length ? (reviews.reduce((a, r) => a + r.rating, 0) / reviews.length).toFixed(1) : '0.0';
   const respondedPct = 85;
 
   const monthlyData = MONTHS.slice(0, 5).map((m, i) => ({ label: m, value: [2, 1, 3, 0, 5, 1, 2][i] || 0 }));
   const maxMonthly = Math.max(...monthlyData.map(d => d.value));
 
   const sentimentData = [
-    { label: 'Positif', value: REVIEWS.filter(r => r.rating >= 4).length, color: 'var(--green)' },
-    { label: 'Neutre', value: REVIEWS.filter(r => r.rating === 3).length, color: '#f59e0b' },
-    { label: 'Négatif', value: REVIEWS.filter(r => r.rating <= 2).length, color: 'var(--red)' },
+    { label: 'Positif', value: reviews.filter(r => r.rating >= 4).length, color: 'var(--green)' },
+    { label: 'Neutre', value: reviews.filter(r => r.rating === 3).length, color: '#f59e0b' },
+    { label: 'Négatif', value: reviews.filter(r => r.rating <= 2).length, color: 'var(--red)' },
   ];
   const total = sentimentData.reduce((a, s) => a + s.value, 0);
-  const pcts = sentimentData.map(s => (s.value / total) * 100);
+  const pcts = total > 0 ? sentimentData.map(s => (s.value / total) * 100) : [0, 0, 0];
   const offsets = pcts.reduce((acc, p, i) => { acc.push(i === 0 ? 0 : acc[i - 1] + pcts[i - 1]); return acc; }, []);
 
   const kpis = [
@@ -60,7 +73,7 @@ export default function Analytiques() {
   ];
 
   const competitors = [
-    { name: "Le Bon Goût (Vous)", rating: 4.2, reviews: 142, responseRate: 85, color: 'var(--gold)' },
+    { name: `${restaurant.name} (Vous)`, rating: parseFloat(avg), reviews: reviews.length + 120, responseRate: 85, color: 'var(--gold)' },
     { name: "L'Atelier Parisien", rating: 4.5, reviews: 310, responseRate: 98, color: '#3b82f6' },
     { name: "Bistrot des Amis", rating: 3.9, reviews: 89, responseRate: 40, color: 'var(--text-dim)' },
     { name: "La Table de Chef", rating: 4.1, reviews: 405, responseRate: 15, color: 'var(--text-dim)' },
@@ -124,7 +137,7 @@ export default function Analytiques() {
                         <div style={{ width: 10, height: 10, borderRadius: '50%', background: s.color, flexShrink: 0 }} />
                         <span style={{ fontSize: 13, color: 'var(--text-muted)', minWidth: 60 }}>{s.label}</span>
                         <span style={{ fontSize: 14, fontWeight: 700, color: s.color }}>{s.value}</span>
-                        <span style={{ fontSize: 11, color: 'var(--text-dim)' }}>({pcts[i].toFixed(0)}%)</span>
+                        <span style={{ fontSize: 11, color: 'var(--text-dim)' }}>({(pcts[i] || 0).toFixed(0)}%)</span>
                       </div>
                     ))}
                   </div>
@@ -136,7 +149,7 @@ export default function Analytiques() {
           <div style={{ animation: 'fadeUp .4s ease' }}>
             <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, overflow: 'hidden' }}>
               <div style={{ padding: '24px 28px', borderBottom: '1px solid var(--border)' }}>
-                <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>Positionnement local (Paris 11e)</h3>
+                <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>Positionnement local</h3>
                 <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>L'IA surveille quotidiennement vos concurrents directs sur Google Maps pour comparer votre attractivité.</p>
               </div>
               <div style={{ padding: 0, overflowX: 'auto' }}>
@@ -151,8 +164,8 @@ export default function Analytiques() {
                   </thead>
                   <tbody>
                     {competitors.sort((a,b) => b.rating - a.rating).map((c, i) => (
-                      <tr key={i} style={{ borderBottom: '1px solid var(--border)', background: c.name.includes('Vous') ? '#d4af3708' : 'transparent' }}>
-                        <td style={{ padding: '20px 28px', fontSize: 14, fontWeight: c.name.includes('Vous') ? 700 : 500, color: c.color }}>
+                      <tr key={i} style={{ borderBottom: '1px solid var(--border)', background: c.name.includes('(Vous)') ? '#d4af3708' : 'transparent' }}>
+                        <td style={{ padding: '20px 28px', fontSize: 14, fontWeight: c.name.includes('(Vous)') ? 700 : 500, color: c.color }}>
                           {i === 0 && <span style={{marginRight: 8}}>🥇</span>}
                           {i === 1 && <span style={{marginRight: 8}}>🥈</span>}
                           {i === 2 && <span style={{marginRight: 8}}>🥉</span>}
@@ -178,10 +191,6 @@ export default function Analytiques() {
                   </tbody>
                 </table>
               </div>
-            </div>
-            <div style={{ marginTop: 24, padding: 20, background: 'linear-gradient(135deg, #1a140a, #120d04)', border: '1px solid #d4af3740', borderRadius: 12 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--gold)', marginBottom: 8 }}>💡 Insight Concurrentiel par l'IA</div>
-              <p style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.6 }}>Votre taux de réponse de 85% vous donne un avantage majeur sur <strong>Bistrot des Amis</strong> et <strong>La Table de Chef</strong>. Cependant, <strong>L'Atelier Parisien</strong> répond à 98% de ses avis. Le <strong>Mode Pilote Automatique</strong> de RepuIA peut vous aider à atteindre les 100% de taux de réponse pour récupérer la première place locale.</p>
             </div>
           </div>
         )}

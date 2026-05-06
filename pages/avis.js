@@ -1,18 +1,30 @@
 import Head from 'next/head';
 import Layout from '../components/Layout';
 import ReviewCard from '../components/ReviewCard';
-import { REVIEWS } from '../lib/data';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from '../lib/i18n';
+import { useAppContext } from '../lib/AppContext';
+import { useRouter } from 'next/router';
 
 export default function Avis() {
   const [filter, setFilter] = useState('all'); // all, pending, treated
   const [search, setSearch] = useState('');
-  const [reviews, setReviews] = useState(REVIEWS);
   const { t } = useTranslation();
+  const { restaurant, reviews, isLoaded, updateReviewStatus } = useAppContext();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isLoaded && !restaurant) {
+      router.push('/onboarding');
+    }
+  }, [isLoaded, restaurant, router]);
+
+  if (!isLoaded || !restaurant) {
+    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Chargement...</div>;
+  }
 
   const handleStatusChange = (id, newStatus) => {
-    setReviews(prev => prev.map(r => r.id === id ? { ...r, status: newStatus } : r));
+    updateReviewStatus(id, newStatus);
   };
 
   const filteredReviews = reviews.filter(r => {

@@ -1,12 +1,19 @@
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from '../lib/i18n';
+import { useAppContext } from '../lib/AppContext';
 
 export default function Layout({ children }) {
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { t, lang, changeLanguage } = useTranslation();
+  const { restaurant, isLoaded } = useAppContext();
+
+  // If not loaded yet or no restaurant, wait or redirect handled by pages
+  const restName = restaurant ? restaurant.name : 'Chargement...';
+  const restCity = restaurant ? (restaurant.address || 'Paris, France').split(',')[0] : '...';
+  const initials = restName !== 'Chargement...' ? restName.substring(0, 2).toUpperCase() : '..';
 
   const NAV = [
     { href: '/', icon: '◈', label: t('dashboard') },
@@ -27,9 +34,7 @@ export default function Layout({ children }) {
 
   return (
     <div className="layout-wrapper">
-      {/* Sidebar */}
       <aside className="sidebar">
-        {/* Logo & Mobile Toggle */}
         <div className="sidebar-logo-container" style={{ padding: '28px 24px 24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-.5px', lineHeight: 1 }}>
@@ -50,7 +55,6 @@ export default function Layout({ children }) {
           </button>
         </div>
 
-        {/* Nav */}
         <nav className={`sidebar-nav ${mobileOpen ? 'open' : ''}`} style={{ padding: '16px 12px', flex: 1, overflowY: 'auto' }}>
           {NAV.map(item => {
             const active = router.pathname === item.href;
@@ -76,7 +80,6 @@ export default function Layout({ children }) {
           })}
         </nav>
 
-        {/* Language Switcher */}
         <div style={{ padding: '0 20px', marginBottom: '16px' }}>
           <select 
             value={lang} 
@@ -93,7 +96,6 @@ export default function Layout({ children }) {
           </select>
         </div>
 
-        {/* Restaurant info */}
         <div className="sidebar-restaurant-info" style={{ padding: '16px 20px', borderTop: '1px solid var(--border)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{
@@ -101,20 +103,22 @@ export default function Layout({ children }) {
               background: 'linear-gradient(135deg, #d4af37, #a8882a)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: 15, fontWeight: 700, color: '#000', flexShrink: 0,
-            }}>BG</div>
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 600 }}>Le Bon Goût</div>
-              <div style={{ fontSize: 11, color: 'var(--text-dim)', marginTop: 1 }}>Paris, France</div>
+            }}>{initials}</div>
+            <div style={{ overflow: 'hidden' }}>
+              <div style={{ fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{restName}</div>
+              <div style={{ fontSize: 11, color: 'var(--text-dim)', marginTop: 1, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{restCity}</div>
             </div>
           </div>
           <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 5 }}>
             <span style={{ width: 6, height: 6, background: 'var(--green)', borderRadius: '50%', display: 'inline-block' }} />
             <span style={{ fontSize: 11, color: 'var(--green)' }}>Connecté · GMB</span>
           </div>
+          <div style={{ marginTop: 10 }}>
+             <Link href="/onboarding" style={{ fontSize: 11, color: 'var(--text-muted)', textDecoration: 'underline' }}>Changer d'établissement</Link>
+          </div>
         </div>
       </aside>
 
-      {/* Main content */}
       <main className="main-content">
         {children}
       </main>

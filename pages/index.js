@@ -1,8 +1,10 @@
 import Head from 'next/head';
 import Layout from '../components/Layout';
 import ReviewCard from '../components/ReviewCard';
-import { REVIEWS } from '../lib/data';
 import { useTranslation } from '../lib/i18n';
+import { useAppContext } from '../lib/AppContext';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
 function StatCard({ value, label, color, icon, sub }) {
   return (
@@ -53,14 +55,22 @@ function InsightCard({ type, title, desc, action }) {
 
 export default function Dashboard() {
   const { t } = useTranslation();
-  const avg = (REVIEWS.reduce((a, r) => a + r.rating, 0) / REVIEWS.length).toFixed(1);
-  const positive = REVIEWS.filter(r => r.rating >= 4).length;
-  
-  // Pending = pending OR needs_review
-  const pendingCount = REVIEWS.filter(r => r.status === 'pending' || r.status === 'needs_review').length;
+  const { restaurant, reviews, isLoaded } = useAppContext();
+  const router = useRouter();
 
-  // Simulate a live feed of the top 5 most recent reviews needing attention or recently published
-  const feed = REVIEWS.slice(0, 5);
+  useEffect(() => {
+    if (isLoaded && !restaurant) {
+      router.push('/onboarding');
+    }
+  }, [isLoaded, restaurant, router]);
+
+  if (!isLoaded || !restaurant) {
+    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Chargement...</div>;
+  }
+
+  const avg = reviews.length ? (reviews.reduce((a, r) => a + r.rating, 0) / reviews.length).toFixed(1) : '0.0';
+  const pendingCount = reviews.filter(r => r.status === 'pending' || r.status === 'needs_review').length;
+  const feed = reviews.slice(0, 5);
 
   return (
     <>
@@ -87,7 +97,7 @@ export default function Dashboard() {
 
         {/* Stats grid */}
         <div className="grid-4" style={{ marginBottom: 32 }}>
-          <StatCard value={REVIEWS.length} label={t('monitored_reviews')} color="var(--gold)" icon="📡" sub={t('all_platforms')} />
+          <StatCard value={reviews.length} label={t('monitored_reviews')} color="var(--gold)" icon="📡" sub={t('all_platforms')} />
           <StatCard value={avg} label={t('avg_rating')} color="#FBBC04" icon="📊" sub={t('stable_7_days')} />
           <StatCard value="92%" label={t('response_rate')} color="var(--green)" icon="⚡" sub={`+12% ${t('with_autopilot')}`} />
           <StatCard value="2" label={t('security_alert')} color="var(--red)" icon="🛡️" sub={t('sensitive_words')} />

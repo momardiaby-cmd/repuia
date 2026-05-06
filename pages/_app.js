@@ -1,11 +1,14 @@
 import '../styles/globals.css';
 import { LanguageProvider } from '../lib/i18n';
+import { AppProvider } from '../lib/AppContext';
 
 function MyApp({ Component, pageProps }) {
   return (
-    <LanguageProvider>
-      <Component {...pageProps} />
-    </LanguageProvider>
+    <AppProvider>
+      <LanguageProvider>
+        <Component {...pageProps} />
+      </LanguageProvider>
+    </AppProvider>
   );
 }
 

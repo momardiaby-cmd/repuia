@@ -2,6 +2,8 @@ import Head from 'next/head';
 import Layout from '../components/Layout';
 import { useState, useEffect } from 'react';
 import { useTranslation } from '../lib/i18n';
+import { useAppContext } from '../lib/AppContext';
+import { useRouter } from 'next/router';
 
 function Section({ title, children }) {
   return (
@@ -56,9 +58,16 @@ export default function Parametres() {
   
   const [saved, setSaved] = useState(false);
   const { t } = useTranslation();
+  
+  const { restaurant, isLoaded } = useAppContext();
+  const router = useRouter();
 
   // Chargement des données sauvegardées
   useEffect(() => {
+    if (isLoaded && !restaurant) {
+      router.push('/onboarding');
+      return;
+    }
     if (typeof window !== 'undefined') {
       setOpenAIApiKey(localStorage.getItem('repuia_openai_key') || '');
       setGoogleApiKey(localStorage.getItem('repuia_google_key') || '');
